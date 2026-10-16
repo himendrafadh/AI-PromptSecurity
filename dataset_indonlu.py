@@ -1,18 +1,33 @@
-from datasets import load_dataset
+import urllib.request
 
-print("Memulai unduhan dataset IndoNER dari Hugging Face...")
+# Tembak langsung ke raw file data testing di repositori GitHub resmi IndoNLU
+url = "https://raw.githubusercontent.com/indobenchmark/indonlu/master/dataset/nerp_indonlu/test_preprocess.txt"
+print("Mengunduh raw data IndoNER langsung dari GitHub...")
 
-# Tarik subset 'ner' secara spesifik
-dataset_ner = load_dataset("indonlp/indonlu", "ner", trust_remote_code=True)
+response = urllib.request.urlopen(url)
+lines = response.read().decode('utf-8').splitlines()
 
-# Ekstrak sampel kalimat ke-5 dari bagian pengujian ('test')
-sample_tokens = dataset_ner['test'][4]['tokens']
-sample_tags = dataset_ner['test'][4]['ner_tags']
+sentences = []
+current_sentence = {'tokens': [], 'tags': []}
+
+# Parsing format CoNLL (Kata \t Label) menjadi struktur array
+for line in lines:
+    if line.strip() == "":
+        if current_sentence['tokens']:
+            sentences.append(current_sentence)
+            current_sentence = {'tokens': [], 'tags': []}
+    else:
+        parts = line.split('\t')
+        if len(parts) >= 2:
+            current_sentence['tokens'].append(parts[0])
+            current_sentence['tags'].append(parts[1])
 
 print("\n--- Struktur Data Berhasil Dimuat ---")
-print("Contoh Kalimat dan Label (0 = Bukan Entitas, selain 0 = Entitas PII/Lainnya):")
+print(f"Total kalimat pengujian yang ditarik: {len(sentences)} kalimat")
+print("\nContoh Kalimat ke-5 dan Label Entitasnya:")
 print("-" * 40)
 
-# Petakan setiap kata (token) dengan label numeriknya
-for token, tag in zip(sample_tokens, sample_tags):
+# Tampilkan sampel data
+sample = sentences[4]
+for token, tag in zip(sample['tokens'], sample['tags']):
     print(f"{token.ljust(15)} : {tag}")
