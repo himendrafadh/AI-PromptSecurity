@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "AI Privacy Shield",
+  "version": "1.0.0",
+  "description": "Ekstensi Chrome untuk menyamarkan data pribadi (PII) pada prompt AI secara real-time.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://chatgpt.com/*",
+    "https://gemini.google.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
